@@ -24,14 +24,14 @@
 
 #pragma once
 
-#include "ofMath.h"
 
-class ofxRandomSampler {
+class ofxRandomSampler
+{
 public: 
-    ofxRandomSampler(size_t size = 0) :
-    _index(0),
-    _size(0),
-    _vals(NULL)
+    ofxRandomSampler(std::size_t size = 0):
+        _index(0),
+        _size(0),
+        _vals(0)
     {
         setSize(size);
     }
@@ -46,16 +46,20 @@ public:
 		}
 
         // Fisher-Yates shuffle
-		for (int i = _size; i > 0; --i) {
-			int rnd = (int)ofRandom(0, i);
+		for (int i = _size; i > 0; --i)
+        {
+            std::size_t rnd = i * rand() / (RAND_MAX + 1.0f);
 			assert(rnd >=0 && rnd < i);
 			swap(_vals[i-1], _vals[rnd]);
 		}
+
 		_index = 0;
     }
     
-    int next() {
-		if (_index == _size) {
+    std::size_t next()
+    {
+		if (_index == _size)
+        {
             reset(); // re-init
 			return next();
 		} else {
@@ -63,20 +67,21 @@ public:
 		}
     }
     
-    void setSize(size_t size) {
+    void setSize(std::size_t size)
+    {
         delete [] _vals;
         _size = size;
-        _vals = new size_t[size];
+        _vals = new std::size_t[size];
         reset();
     }
     
-    void getSize() const {
+    std::size_t getSize() const
+    {
         return _size;
     }
     
 private:
-    
-    size_t  _index;
-    size_t  _size;
-    size_t* _vals;
+    std::size_t  _index;
+    std::size_t  _size;
+    std::size_t* _vals;
 };
