@@ -1,6 +1,6 @@
 // =============================================================================
 //
-// Copyright (c) 2010-2014 Christopher Baker <http://christopherbaker.net>
+// Copyright (c) 2010-2015 Christopher Baker <http://christopherbaker.net>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,14 +26,43 @@
 #pragma once
 
 
-#include "ofMain.h"
-#include "ofxMathUtils.h"
+namespace ofx {
 
 
-class ofApp: public ofBaseApp
+/// \brief A class that allows sampling without replacement.
+///
+/// The RandomSampler will get values between 0 and size - 1.  These values
+/// can be used as indicies to sample from for an array collection.
+class RandomSampler
 {
 public:
-    void setup();
-    void draw();
+	/// \brief Create a RandomSampler.
+	/// \param size The total number of indicies.
+	RandomSampler(std::size_t size = 1);
+
+	/// \brief Reset the RandomSampler.
+	void reset() const;;
+
+	/// \returns The next index from the RandomSampler.  If all values have
+	///			 been exhausted, the RandomSampler is reset and the next index
+	///			 is returned.
+	std::size_t next() const;
+
+	/// \brief Set the size of the RandomSampler.
+	/// \param size The total number of indicies.
+	void setSize(std::size_t size);
+
+	/// \returns The total number of indicies.
+	std::size_t getSize() const;
+
+private:
+	/// \brief The shuffled collection of indices.
+    mutable std::vector<std::size_t> _indicies;
+
+	/// \brief The current iterator to the indices.
+    mutable std::vector<std::size_t>::iterator _iterator;
     
 };
+
+
+} // namespace ofx

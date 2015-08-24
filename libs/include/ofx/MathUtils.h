@@ -1,6 +1,6 @@
 // =============================================================================
 //
-// Copyright (c) 2010-2014 Christopher Baker <http://christopherbaker.net>
+// Copyright (c) 2010-2013 Christopher Baker <http://christopherbaker.net>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,14 +26,34 @@
 #pragma once
 
 
-#include "ofMain.h"
-#include "ofxMathUtils.h"
+#include <tgmath.h>
+#include <limits>
 
 
-class ofApp: public ofBaseApp
+namespace ofx {
+
+
+/// \brief A collection of Mathematical utilities.
+class MathUtils
 {
 public:
-    void setup();
-    void draw();
-    
+	/// \brief Test if two Floating Point numbers are equal.
+	/// \param f0 The first floating point number.
+	/// \param f1 The second floating point number.
+	/// \param epsilopn The test epsilion to use for the test.
+	/// \tparam FloatType The floating point type to test.
+	/// \returns true if the floating point numbers are equal.
+    template <class FloatType>
+    static bool floatEquals(const FloatType& f0,
+                            const FloatType& f1,
+                            const FloatType& epsilon = std::numeric_limits<FloatType>::epsilon())
+	{
+        return fabs(f0 - f1) < epsilon;
+    }
+
 };
+
+
+} // namespace ofx
+
+

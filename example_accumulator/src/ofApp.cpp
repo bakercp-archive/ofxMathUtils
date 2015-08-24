@@ -23,17 +23,25 @@
 // =============================================================================
 
 
-#pragma once
+#include "ofApp.h"
 
 
-#include "ofMain.h"
-#include "ofxMathUtils.h"
-
-
-class ofApp: public ofBaseApp
+void ofApp::setup()
 {
-public:
-    void setup();
-    void draw();
-    
-};
+	accumulator.setCapacity(64);
+	accumulator.attach(parameter);
+
+	runningStats.attach(accumulator);
+}
+
+
+void ofApp::draw()
+{
+	parameter += ofRandom(-0.01, 0.01);
+
+    ofBackgroundGradient(ofColor::gray, ofColor::black);
+    ofDrawBitmapString("See the console.", 15,15);
+
+	cout << accumulator.size() << "/" << accumulator.getCapacity() << endl;
+	cout << runningStats.mean() << "/" << runningStats.standardDeviation() << endl;
+}

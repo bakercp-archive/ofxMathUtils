@@ -26,16 +26,7 @@
 #pragma once
 
 
-#include <limits>
-
-
-using std::numeric_limits;
-
-
-template <class T>
-bool ofxFloatEquals(const T& f0,
-                    const T& f1,
-                    const T& epsilon = numeric_limits<T>::epsilon()) {
-
-    return fabs(f0 - f1) < epsilon;
-}
+#include "ofx/Accumulator.h"
+#include "ofx/MathUtils.h"
+#include "ofx/RandomSampler.h"
+#include "ofx/RunningStatistics.h"

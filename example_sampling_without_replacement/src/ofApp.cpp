@@ -23,17 +23,31 @@
 // =============================================================================
 
 
-#pragma once
+#include "ofApp.h"
 
 
-#include "ofMain.h"
-#include "ofxMathUtils.h"
-
-
-class ofApp: public ofBaseApp
+void ofApp::setup()
 {
-public:
-    void setup();
-    void draw();
+    int numInts = 10;
+
+    std::vector<int> myInts;
     
-};
+    for(std::size_t i = 0; i < numInts; ++i)
+    {
+        myInts.push_back(i + 100);
+    }
+    
+    ofx::RandomSampler sampler(numInts);
+
+    for (int i = 0; i < 100; ++i)
+    {
+        std::cout << myInts[sampler.next()] << std::endl;
+    }
+}
+
+
+void ofApp::draw()
+{
+    ofBackgroundGradient(ofColor::gray, ofColor::black);
+    ofDrawBitmapString("See the console.", 15,15);
+}
