@@ -30,10 +30,20 @@
 #include "ofxMathUtils.h"
 
 
+using namespace ofx;
+
+
 class ofApp: public ofBaseApp
 {
 public:
-    void setup();
+	void setup();
+	void update();
     void draw();
-    
+
+	RunningHistogram histogram;
+
+	std::random_device rd;
+	std::mt19937 gen;
+	std::normal_distribution<> normal;
+
 };
