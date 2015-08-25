@@ -26,8 +26,10 @@
 #pragma once
 
 
+#include <random>
 #include "ofx/Accumulator.h"
 #include "ofx/MathUtils.h"
 #include "ofx/RandomSampler.h"
+#include "ofx/RunningHistogram.h"
 #include "ofx/RunningStatistics.h"
 #include "ofx/RunningRegression.h"
