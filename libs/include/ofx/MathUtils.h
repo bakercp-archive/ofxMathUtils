@@ -43,13 +43,16 @@ public:
 	/// \param epsilopn The test epsilion to use for the test.
 	/// \tparam FloatType The floating point type to test.
 	/// \returns true if the floating point numbers are equal.
-    template <class FloatType>
+    template <typename FloatType>
     static bool floatEquals(const FloatType& f0,
                             const FloatType& f1,
                             const FloatType& epsilon = std::numeric_limits<FloatType>::epsilon())
 	{
         return fabs(f0 - f1) < epsilon;
     }
+
+
+
 
 };
 

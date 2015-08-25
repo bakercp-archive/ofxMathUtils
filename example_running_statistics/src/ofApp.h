@@ -1,6 +1,6 @@
 // =============================================================================
 //
-// Copyright (c) 2010-2015 Christopher Baker <http://christopherbaker.net>
+// Copyright (c) 2010-2014 Christopher Baker <http://christopherbaker.net>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,63 +23,28 @@
 // =============================================================================
 
 
-
-#include "ofx/RandomSampler.h"
-#include <algorithm>
-#include <random>
-#include <cassert>
+#pragma once
 
 
-namespace ofx {
+#include "ofMain.h"
+#include "ofxMathUtils.h"
 
 
-RandomSampler::RandomSampler(std::size_t size)
+using namespace ofx;
+
+
+class ofApp: public ofBaseApp
 {
-	setSize(size);
-}
-
-	
-void RandomSampler::reset() const
-{
-	std::random_shuffle(_indicies.begin(), _indicies.end());
-	_iterator = _indicies.begin();
-}
+public:
+    void setup();
+    void draw();
 
 
-std::size_t RandomSampler::next() const
-{
-	if (_iterator == _indicies.end())
-	{
-		reset();
-		return next();
-	}
-	else
-	{
-		return *_iterator++;
-	}
-}
+	Accumulator<float> accumulatorX;
+	Accumulator<uint64_t> accumulatorT;
 
 
-void RandomSampler::setSize(std::size_t size)
-{
-	// Require size > 0.
-	assert(size > 0);
+//	ofParameter<vector<uint64_t>> tupleParameter;
+	ofParameter<ofVec2f> vectorParameter;
 
-	// Resize the indices for new size.
-	_indicies.resize(size);
-
-	// Fill with indicies 0 ... n.
-	std::iota(_indicies.begin(), _indicies.end(), 0);
-
-	// Reset the sampler.
-	reset();
-}
-
-
-std::size_t RandomSampler::getSize() const
-{
-	return _indicies.size();
-}
-
-
-} // namespace ofx
+};

@@ -30,17 +30,10 @@
 #include "ofxMathUtils.h"
 
 
-using namespace ofx;
-
-
 class ofApp: public ofBaseApp
 {
 public:
     void setup();
     void draw();
-
-
-	Accumulator<float> accumulator;
-	ofParameter<float> parameter;
-	RunningStatistics<float> runningStats;
+    
 };

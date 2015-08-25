@@ -1,6 +1,6 @@
 // =============================================================================
 //
-// Copyright (c) 2010-2014 Christopher Baker <http://christopherbaker.net>
+// Copyright (c) 2010-2015 Christopher Baker <http://christopherbaker.net>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,25 +23,69 @@
 // =============================================================================
 
 
-#include "ofApp.h"
+#include "ofx/RunningRegression.h"
 
 
-void ofApp::setup()
+namespace ofx {
+
+
+RunningRegression::RunningRegression()
 {
-	accumulator.setCapacity(64);
-	accumulator.attach(parameter);
-
-	runningStats.attach(accumulator);
+	reset();
 }
 
 
-void ofApp::draw()
+RunningRegression::~RunningRegression()
 {
-	parameter += ofRandom(-0.01, 0.01);
-
-    ofBackgroundGradient(ofColor::gray, ofColor::black);
-    ofDrawBitmapString("See the console.", 15,15);
-
-	cout << accumulator.size() << "/" << accumulator.getCapacity() << endl;
-	cout << runningStats.mean() << "/" << runningStats.standardDeviation() << endl;
 }
+
+
+void RunningRegression::reset()
+{
+	_xStats.reset();
+	_yStats.reset();
+	_sxy = 0.0;
+	_n = 0;
+}
+
+
+void RunningRegression::update(double x, double y)
+{
+	_sxy += (_xStats.mean() - x) * (_yStats.mean() - y) * static_cast<double>(_n) / static_cast<double>(_n + 1);
+
+	_xStats.update(x);
+	_yStats.update(y);
+	
+	_n++;
+}
+
+
+uint64_t RunningRegression::samples() const
+{
+	return _n;
+}
+
+
+double RunningRegression::slope() const
+{
+	double _sxx = _xStats.variance() * (_n - 1.0);
+
+	return _sxy / _sxx;
+}
+
+
+double RunningRegression::intercept() const
+{
+	return _yStats.mean() - slope() * _xStats.mean();
+}
+
+
+double RunningRegression::correlation() const
+{
+	double t = _xStats.standardDeviation() * _yStats.standardDeviation();
+
+	return _sxy / ((_n - 1) * t);
+}
+
+
+} // namespace ofx

@@ -26,161 +26,108 @@
 #pragma once
 
 
+#include <cstdint>
+
+
 namespace ofx {
 
 
+/// \brief Compute basic 1D statistics in a single pass.
 /// \sa http://www.johndcook.com/blog/skewness_kurtosis/
-template<typename T>
+/// \sa https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+/// \sa http://prod.sandia.gov/techlib/access-control.cgi/2008/086212.pdf
 class RunningStatistics
 {
 public:
+	/// \brief Create a RunningStatistics object.
+	RunningStatistics();
+
+	/// \brief Destroy the RunningStatistics object.
+	~RunningStatistics();
+
+	/// \brief Reset the RunningStatistics.
 	void reset();
 
-	/// \returns the number of samples used to calculate the statistics.
-	uint64_t samples();
+	/// \brief Update the statistics with a new value.
+	/// \param value The value to add.
+	void update(double value);
 
+	/// \returns the number of samples used to calculate the statistics.
+	uint64_t samples() const;
+
+	/// \returns the arithmetic mean.
+	/// \sa https://en.wikipedia.org/wiki/Arithmetic_mean
 	double mean() const;
+
+	/// \returns the variance.
+	/// \sa https://en.wikipedia.org/wiki/Variance
 	double variance() const;
+
+	/// \returns the standard deviation.
+	/// \sa https://en.wikipedia.org/wiki/Standard_deviation
 	double standardDeviation() const;
+
+	/// \returns the skewness.
+	/// \sa https://en.wikipedia.org/wiki/Skewness
 	double skewness() const;
+
+	/// \returns the kurtosis.
+	/// \sa https://en.wikipedia.org/wiki/Kurtosis
 	double kurtosis() const;
 
-	void attach(Accumulator<T>& accumulator, int priority = OF_EVENT_ORDER_AFTER_APP);
-	void detatch(Accumulator<T>& accumulator, int priority = OF_EVENT_ORDER_AFTER_APP);
+	/// \returns the maximum value;
+	double maximum() const;
+
+	/// \returns the minimum value;
+	double minimum() const;
+
+	friend RunningStatistics operator + (const RunningStatistics& a, const RunningStatistics& b);
 
 private:
-	void onPushed(const void* sender, const T& value);
-	void onPopped(const void* sender, const T& value);
-	void onCleared(const void* sender);
-	void onCapacityChanged(const void* sender, std::size_t& size);
-
-	/// \brief A pointer to the accumulator.
-	Accumulator<T>* _accumulator = nullptr;
-
 	/// \brief Number of samples.
 	uint64_t _n;
 
-	/// \brief Va
-	double _M1 = 0.0;
-	double _M2 = 0.0;
-	double _M3 = 0.0;
-	double _M4 = 0.0;
+	/// \brief The mean.
+	double _M1;
 
-	/// \brief Allow access the private callbacks.
-	friend class Accumulator<T>;
+	/// \brief M2 term.
+	double _M2;
+
+	/// \brief M3 term.
+	double _M3;
+
+	/// \brief M4 term.
+	double _M4;
+
+	/// \brief The maximum value.
+	double _maximum;
+
+	/// \brief The minimum value.
+	double _minimum;
 };
 
 
-template<typename T>
-void RunningStatistics<T>::reset()
+RunningStatistics operator + (const RunningStatistics& a, const RunningStatistics& b)
 {
-	_n = 0;
+	RunningStatistics combined;
 
-	_M1 = _M2 = _M3 = _M4 = 0.0;
-}
+	combined._n = a._n + b._n;
 
+	double delta = b._M1 - a._M1;
+	double delta2 = delta*delta;
+	double delta3 = delta*delta2;
+	double delta4 = delta2*delta2;
 
-template<typename T>
-double RunningStatistics<T>::mean() const
-{
-	return _M1;
-}
+	combined._M1 = (a._n * a._M1 + b._n * b._M1) / combined._n;
+	combined._M2 = a._M2 + b._M2 + delta2 * a._n * b._n / combined._n;
 
+	combined._M3 = a._M3 + b._M3 + delta3 * a._n * b._n * (a._n - b._n) / (combined._n * combined._n);
+	combined._M3 += 3.0 * delta * (a._n * b._M2 - b._n * a._M2) / combined._n;
 
-template<typename T>
-double RunningStatistics<T>::variance() const
-{
-	return _M2 / (_n - 1.0);
-}
-
-
-template<typename T>
-double RunningStatistics<T>::standardDeviation() const
-{
-	return sqrt(variance());
-}
-
-
-template<typename T>
-double RunningStatistics<T>::skewness() const
-{
-	return sqrt(double(_n)) * _M3/ pow(_M2, 1.5);
-}
-
-
-template<typename T>
-double RunningStatistics<T>::kurtosis() const
-{
-	return double(_n) * _M4 / (_M2 * _M2) - 3.0;
-}
-
-
-template<typename T>
-void RunningStatistics<T>::attach(Accumulator<T>& accumulator, int priority)
-{
-	accumulator.registerAllEvents(this, priority);
-	_accumulator = &accumulator;
-}
-
-
-template<typename T>
-void RunningStatistics<T>::detatch(Accumulator<T>& accumulator, int priority)
-{
-	accumulator.unregisterAllEvents(this, priority);
-	_accumulator = nullptr;
-}
-
-
-template<typename T>
-void RunningStatistics<T>::onPushed(const void* sender, const T& value)
-{
-	if (sender == _accumulator)
-	{
-		double delta, delta_n, delta_n2, term1;
-
-		double x = value;
-
-		uint64_t n1 = _n;
-		_n++;
-		delta = x - _M1;
-		delta_n = delta / _n;
-		delta_n2 = delta_n * delta_n;
-		term1 = delta * delta_n * n1;
-		_M1 += delta_n;
-		_M4 += term1 * delta_n2 * (_n*_n - 3*_n + 3) + 6 * delta_n2 * _M2 - 4 * delta_n * _M3;
-		_M3 += term1 * delta_n * (_n - 2) - 3 * delta_n * _M2;
-		_M2 += term1;
-	}
-}
-
-
-template<typename T>
-void RunningStatistics<T>::onPopped(const void* sender, const T& value)
-{
-	if (sender == _accumulator)
-	{
-
-	}
-}
-
-
-template<typename T>
-void RunningStatistics<T>::onCleared(const void* sender)
-{
-	if (sender == _accumulator)
-	{
-		reset();
-	}
-}
-
-
-template<typename T>
-void RunningStatistics<T>::onCapacityChanged(const void* sender, std::size_t& size)
-{
-	if (sender == _accumulator)
-	{
-		reset();
-	}
+	combined._M4 = a._M4 + b._M4 + delta4 * a._n * b._n * (a._n * a._n - a._n * b._n + b._n * b._n) / (combined._n * combined._n * combined._n);
+	combined._M4 += 6.0 * delta2 * (a._n * a._n * b._M2 + b._n * b._n * a._M2 ) / (combined._n * combined._n) + 4.0 * delta * (a._n * b._M3 - b._n * a._M3) / combined._n;
+	
+	return combined;
 }
 
 

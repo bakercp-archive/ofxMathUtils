@@ -30,3 +30,4 @@
 #include "ofx/MathUtils.h"
 #include "ofx/RandomSampler.h"
 #include "ofx/RunningStatistics.h"
+#include "ofx/RunningRegression.h"

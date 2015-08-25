@@ -1,6 +1,6 @@
 // =============================================================================
 //
-// Copyright (c) 2010-2015 Christopher Baker <http://christopherbaker.net>
+// Copyright (c) 2010-2014 Christopher Baker <http://christopherbaker.net>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,63 +23,11 @@
 // =============================================================================
 
 
-
-#include "ofx/RandomSampler.h"
-#include <algorithm>
-#include <random>
-#include <cassert>
+#include "ofApp.h"
 
 
-namespace ofx {
-
-
-RandomSampler::RandomSampler(std::size_t size)
+int main()
 {
-	setSize(size);
+	ofSetupOpenGL(175, 20, OF_WINDOW);
+	ofRunApp(new ofApp());
 }
-
-	
-void RandomSampler::reset() const
-{
-	std::random_shuffle(_indicies.begin(), _indicies.end());
-	_iterator = _indicies.begin();
-}
-
-
-std::size_t RandomSampler::next() const
-{
-	if (_iterator == _indicies.end())
-	{
-		reset();
-		return next();
-	}
-	else
-	{
-		return *_iterator++;
-	}
-}
-
-
-void RandomSampler::setSize(std::size_t size)
-{
-	// Require size > 0.
-	assert(size > 0);
-
-	// Resize the indices for new size.
-	_indicies.resize(size);
-
-	// Fill with indicies 0 ... n.
-	std::iota(_indicies.begin(), _indicies.end(), 0);
-
-	// Reset the sampler.
-	reset();
-}
-
-
-std::size_t RandomSampler::getSize() const
-{
-	return _indicies.size();
-}
-
-
-} // namespace ofx

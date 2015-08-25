@@ -72,23 +72,6 @@ public:
 	/// \returns the number of elements in the Accumulator.
     std::size_t size() const;
 
-	/// \brief Attach to an ofParameter.
-	///
-	/// This will cause the Accumulator to subscribe to an Parameter's events.
-	///
-	/// \param parameter The ofParameter to attach to.
-	void attach(ofParameter<T>& parameter,
-				int priority = OF_EVENT_ORDER_AFTER_APP);
-
-	/// \brief Detatch from an ofParameter.
-	///
-	/// This will cause the Accumulator to unsubscribe from an Parameter's
-	/// events.
-	///
-	/// \param parameter The ofParameter to attach to.
-	void detatch(ofParameter<T>& parameter,
-				 int priority = OF_EVENT_ORDER_AFTER_APP);
-
 	/// \brief Push a value into the Accumulator.
 	///
 	/// If the additional value causes the Accumulator to exceed its capacity
@@ -215,18 +198,18 @@ bool Accumulator<T>::full() const
 }
 
 
-template<typename T>
-void Accumulator<T>::attach(ofParameter<T>& parameter, int priority)
-{
-	parameter.addListener(this, &Accumulator<T>::onParameter, priority);
-}
-
-
-template<typename T>
-void Accumulator<T>::detatch(ofParameter<T>& parameter, int priority)
-{
-	parameter.removeListener(this, &Accumulator<T>::onParameter, priority);
-}
+//template<typename T>
+//void Accumulator<T>::attach(ofParameter<T>& parameter, int priority)
+//{
+//	parameter.addListener(this, &Accumulator<T>::onParameter, priority);
+//}
+//
+//
+//template<typename T>
+//void Accumulator<T>::detatch(ofParameter<T>& parameter, int priority)
+//{
+//	parameter.removeListener(this, &Accumulator<T>::onParameter, priority);
+//}
 
 
 template<typename T>
